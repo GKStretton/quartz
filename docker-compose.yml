@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+  quartz-hugo:
+    build: .
+    restart: unless-stopped
+    container_name: quartz-hugo
+    volumes:
+      - .:/quartz
+    ports:
+      - 1313:1313
+
+    # optional
+    environment:
+      - HUGO_BIND=0.0.0.0
+      - HUGO_BASEURL=http://localhost
+      - HUGO_PORT=1313
+      - HUGO_APPENDPORT=true
+      - HUGO_LIVERELOADPORT=-1
