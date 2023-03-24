@@ -8,7 +8,7 @@ other = "↳ Let's get you home."
 other = "All {{.Title}}"
 
 [last_updated]
-other = "Last updated"
+other = "Updated"
 
 [notes_count]
 other = "notes with this tag"

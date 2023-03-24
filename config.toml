@@ -1,5 +1,5 @@
-baseURL = "https://quartz.jzhao.xyz/"
-languageCode = "en-us"
+baseURL = "https://localhost:1313/"
+languageCode = "en-gb"
 relativeURLs = false
 disablePathToLower = true
 ignoreFiles = [
@@ -27,7 +27,7 @@ enableGitInfo = true
         lineNumbersInTable = true
         style = "dracula"
     [frontmatter]
-        lastmod = ["lastmod", ":git", "date", "publishDate"]
-        publishDate = ["publishDate", "date"]
+        lastmod = ["modified", "lastmod", ":git", "date", "publishDate"]
+        publishDate = ["created", "publishDate", "date"]
     [markup.goldmark.renderer]
         unsafe = true
