@@ -13,6 +13,9 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
       # tls
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=greg.stretton@protonmail.com"
@@ -45,13 +48,16 @@ services:
       - 1313:1313
     environment:
       - HUGO_BASEURL=https://${DOMAIN}
-      - HUGO_CANONIFYURLS=true
+      - HUGO_APPENDPORT=false
     labels:
       - "traefik.enable=true"
+      # non-https could probably be removed
       - "traefik.http.routers.quartz-hugo.rule=Host(`${DOMAIN}`)"
-      - "traefik.http.routers.quartz-hugo.entrypoints=web,websecure"
-      - "traefik.http.routers.quartz-hugo.tls=true"
-      - "traefik.http.routers.quartz-hugo.tls.certresolver=myresolver"
+      - "traefik.http.routers.quartz-hugo.entrypoints=web"
+      - "traefik.http.routers.quartz-hugo-https.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.quartz-hugo-https.entrypoints=websecure"
+      - "traefik.http.routers.quartz-hugo-https.tls=true"
+      - "traefik.http.routers.quartz-hugo-https.tls.certresolver=myresolver"
   cv:
     image: nginx:latest
     restart: unless-stopped
