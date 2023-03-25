@@ -47,8 +47,8 @@ services:
     ports:
       - 1313:1313
     environment:
-      - HUGO_BASEURL=https://${DOMAIN}
-      - HUGO_APPENDPORT=false
+      - HUGO_BASEURL=http://${DOMAIN}
+      - HUGO_APPENDPORT=true
     labels:
       - "traefik.enable=true"
       # non-https could probably be removed

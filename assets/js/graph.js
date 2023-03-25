@@ -56,6 +56,10 @@ async function drawGraph(baseUrl, isHome, pathColors, graphConfig) {
       return "var(--g-node-active)"
     }
 
+    if (!content[d.id]) {
+      return "var(--g-node-nonexistent)"
+    }
+
     for (const pathColor of pathColors) {
       const path = Object.keys(pathColor)[0]
       const colour = pathColor[path]
@@ -168,16 +172,18 @@ async function drawGraph(baseUrl, isHome, pathColors, graphConfig) {
     .style("cursor", "pointer")
     .on("click", (_, d) => {
       // SPA navigation
-      const targ = `${baseUrl}${decodeURI(d.id).replace(/\s+/g, "-")}/`
-      window.Million.navigate(new URL(targ), ".singlePage")
-      plausible("Link Click", {
-        props: {
-          href: targ,
-          broken: false,
-          internal: true,
-          graph: true,
-        }
-      })
+      if (content[d.id]) {
+        const targ = `${baseUrl}${decodeURI(d.id).replace(/\s+/g, "-")}/`
+        window.Million.navigate(new URL(targ), ".singlePage")
+        plausible("Link Click", {
+          props: {
+            href: targ,
+            broken: false,
+            internal: true,
+            graph: true,
+          }
+        })
+      }
     })
     .on("mouseover", function(_, d) {
       d3.selectAll(".node").transition().duration(100).attr("fill", "var(--g-node-inactive)")
