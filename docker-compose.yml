@@ -7,11 +7,16 @@ services:
     restart: unless-stopped
     # Enables the web UI and tells Traefik to listen to docker
     command:
+      - "--log.level=DEBUG"
       - "--api.dashboard=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      # tls
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=greg.stretton@protonmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
@@ -25,10 +30,6 @@ services:
       # generate dashboard bcrypt auth with htpasswd -nbB admin password
       - "traefik.http.middlewares.basic-auth.basicauth.users=${BASIC_AUTH}"
       - "traefik.http.routers.traefik.middlewares=basic-auth"
-      # tls
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=greg.stretton@protonmail.com"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       # dashboard tls
       - "traefik.http.routers.traefik.tls=true"
       - "traefik.http.routers.traefik.entrypoints=web,websecure"
