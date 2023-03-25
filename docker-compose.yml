@@ -31,7 +31,7 @@ services:
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
       # dashboard tls
       - "traefik.http.routers.traefik.tls=true"
-      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.entrypoints=web,websecure"
       - "traefik.http.routers.traefik.tls.certresolver=myresolver"
 
   quartz-hugo:
@@ -44,10 +44,11 @@ services:
       - 1313:1313
     environment:
       - HUGO_BASEURL=https://${DOMAIN}
+      - HUGO_CANONIFYURLS=true
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.quartz-hugo.rule=Host(`${DOMAIN}`)"
-      - "traefik.http.routers.quartz-hugo.entrypoints=websecure"
+      - "traefik.http.routers.quartz-hugo.entrypoints=web,websecure"
       - "traefik.http.routers.quartz-hugo.tls=true"
       - "traefik.http.routers.quartz-hugo.tls.certresolver=myresolver"
   cv:
@@ -60,6 +61,6 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.cv.rule=Host(`cv.${DOMAIN}`)"
-      - "traefik.http.routers.cv.entrypoints=websecure"
+      - "traefik.http.routers.cv.entrypoints=web,websecure"
       - "traefik.http.routers.cv.tls=true"
       - "traefik.http.routers.cv.tls.certresolver=myresolver"
