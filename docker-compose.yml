@@ -1,6 +1,39 @@
 version: "3.3"
 
 services:
+  traefik:
+    # The official v2 Traefik docker image
+    image: traefik:v2.9
+    restart: unless-stopped
+    # Enables the web UI and tells Traefik to listen to docker
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./letsencrypt:/letsencrypt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      # generate dashboard bcrypt auth with htpasswd -nbB admin password
+      - "traefik.http.middlewares.basic-auth.basicauth.users=${BASIC_AUTH}"
+      - "traefik.http.routers.traefik.middlewares=basic-auth"
+      # tls
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=greg.stretton@protonmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      # dashboard tls
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=myresolver"
+
   quartz-hugo:
     build: .
     restart: unless-stopped
@@ -9,11 +42,24 @@ services:
       - .:/quartz
     ports:
       - 1313:1313
-
-    # optional
     environment:
-      - HUGO_BIND=0.0.0.0
-      - HUGO_BASEURL=http://localhost
-      - HUGO_PORT=1313
-      - HUGO_APPENDPORT=true
-      - HUGO_LIVERELOADPORT=-1
+      - HUGO_BASEURL=https://${DOMAIN}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.quartz-hugo.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.quartz-hugo.entrypoints=websecure"
+      - "traefik.http.routers.quartz-hugo.tls=true"
+      - "traefik.http.routers.quartz-hugo.tls.certresolver=myresolver"
+  cv:
+    image: nginx:latest
+    restart: unless-stopped
+    ports:
+      - "1314:80"
+    volumes:
+      - /var/www/html/cv.gregstretton.org:/usr/share/nginx/html:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cv.rule=Host(`cv.${DOMAIN}`)"
+      - "traefik.http.routers.cv.entrypoints=websecure"
+      - "traefik.http.routers.cv.tls=true"
+      - "traefik.http.routers.cv.tls.certresolver=myresolver"
