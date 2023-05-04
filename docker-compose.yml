@@ -1,4 +1,4 @@
-version: "3.3"
+version: "3.5"
 
 services:
   traefik:
@@ -13,6 +13,8 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websocketsecure.address=:443"
+      - "--entrypoints.mqttsecure.address=:8883"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
@@ -23,6 +25,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "8883:8883"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./letsencrypt:/letsencrypt
@@ -37,6 +40,8 @@ services:
       - "traefik.http.routers.traefik.tls=true"
       - "traefik.http.routers.traefik.entrypoints=web,websecure"
       - "traefik.http.routers.traefik.tls.certresolver=myresolver"
+    networks:
+      - traefik
 
   quartz-hugo:
     build: .
@@ -71,3 +76,7 @@ services:
       - "traefik.http.routers.cv.entrypoints=web,websecure"
       - "traefik.http.routers.cv.tls=true"
       - "traefik.http.routers.cv.tls.certresolver=myresolver"
+
+networks:
+  traefik:
+    name: traefik_network
