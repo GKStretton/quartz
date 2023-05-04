@@ -62,6 +62,9 @@ services:
       - "traefik.http.routers.quartz-hugo-https.entrypoints=websecure"
       - "traefik.http.routers.quartz-hugo-https.tls=true"
       - "traefik.http.routers.quartz-hugo-https.tls.certresolver=myresolver"
+    networks:
+      - traefik
+
   cv:
     image: nginx:latest
     restart: unless-stopped
@@ -75,6 +78,8 @@ services:
       - "traefik.http.routers.cv.entrypoints=web,websecure"
       - "traefik.http.routers.cv.tls=true"
       - "traefik.http.routers.cv.tls.certresolver=myresolver"
+    networks:
+      - traefik
 
 networks:
   traefik:
