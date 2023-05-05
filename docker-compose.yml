@@ -14,7 +14,6 @@ services:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.mqttsecure.address=:8883"
-      - "--entrypoints.webrtc.address=:8890"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
@@ -26,7 +25,6 @@ services:
       - "80:80"
       - "443:443"
       - "8883:8883"
-      - "8890:8890"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./letsencrypt:/letsencrypt
