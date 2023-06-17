@@ -10,12 +10,19 @@ parser.add_argument('--content', action="store", required=True, help='Quartz con
 parser.add_argument('--cleanup', action="store_true", default=False, help='Remove files from Quartz content that do not get copied')
 args = parser.parse_args()
 
+# input
 obsidian_vault_path = args.vault
+# output
 quartz_content_path = args.content
+
+# dirs to search for published .md files in, in addition to ./
 included_dirs = [
 	'self',
 	'website-other',
 ]
+
+# place to put non-markdown published files, will always be copied
+assets_dir = 'web-assets'
 
 # create Quartz content directory for Obsidian notes if it doesn't exist
 os.makedirs(quartz_content_path, exist_ok=True)
@@ -29,6 +36,7 @@ for root, dirs, files in os.walk(obsidian_vault_path):
 	# exclude directories listed in excluded_dirs
 	dirs[:] = [d for d in dirs if d in included_dirs]
 	
+	# relative obsidian dir so we can target the relative dir within the output folder
 	rel_obsidian_dir = os.path.relpath(root, obsidian_vault_path)
 	destination_dir = os.path.join(quartz_content_path, rel_obsidian_dir)
 
@@ -52,3 +60,23 @@ for root, dirs, files in os.walk(obsidian_vault_path):
 				if os.path.isfile(file_path):
 					print("REMOVE:", file_path)
 					os.remove(file_path)
+
+
+# Define the function to copy or sync a directory and its content
+def copy_directory(source_dir, destination_dir):
+    if os.path.isdir(source_dir):
+        os.makedirs(destination_dir, exist_ok=True)
+        for item in os.listdir(source_dir):
+            source_item = os.path.join(source_dir, item)
+            destination_item = os.path.join(destination_dir, item)
+            if os.path.isdir(source_item):
+                copy_directory(source_item, destination_item)  # recursive call
+            else:
+                shutil.copy2(source_item, destination_item)  # copy file
+
+# Copy or sync the assets_dir at the end of the script
+source_assets_dir = os.path.join(obsidian_vault_path, assets_dir)
+destination_assets_dir = os.path.join(quartz_content_path, assets_dir)
+copy_directory(source_assets_dir, destination_assets_dir)
+
+print("copied web-assets")
